@@ -1,0 +1,30 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "name": "ui",
+  "projectType": "application",
+  "sourceRoot": "ecommerce-ui/src",
+  "tags": ["scope:ui"],
+  // Thin wrappers over package.json scripts, so npm, Nx and the Dockerfile run the same commands.
+  "targets": {
+    "dev": {
+      "command": "npm run dev",
+      "options": { "cwd": "{projectRoot}" }
+    },
+    "build": {
+      "command": "npm run build",
+      "options": { "cwd": "{projectRoot}" },
+      "inputs": ["default", "!{projectRoot}/dist/**/*"],
+      "outputs": ["{projectRoot}/dist"]
+    },
+    "lint": {
+      "command": "npm run lint -- --deny-warnings",
+      "options": { "cwd": "{projectRoot}" }
+    },
+    "preview": {
+      "command": "npm run preview",
+      "options": { "cwd": "{projectRoot}" },
+      "dependsOn": ["build"],
+      "continuous": true
+    }
+  }
+}

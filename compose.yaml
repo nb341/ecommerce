@@ -1,0 +1,98 @@
+# Local development stack. Configuration comes from .env (see .env.example); every variable has a
+# local-only default so `docker compose up` works on a fresh clone. Ports bind to 127.0.0.1 only.
+#
+#   docker compose up -d --wait                  infra only: db + redis (native API/UI via npm run dev)
+#   docker compose --profile full up -d --wait   everything in containers (npm run docker:up)
+#
+# api/ui sit behind the `full` profile so plain `up` never clashes with an API run via dotnet.
+
+name: ecommerce
+
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-ecommerce}
+      # Read by docker/postgres/init/01-roles.sh (first start of an empty volume only).
+      APP_DB_PASSWORD: ${APP_DB_PASSWORD:-change-me-app}
+      MIGRATOR_DB_PASSWORD: ${MIGRATOR_DB_PASSWORD:-change-me-migrator}
+    volumes:
+      # Postgres 18 images keep data under /var/lib/postgresql/<major>/, so mount the parent.
+      - db-data:/var/lib/postgresql
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - '127.0.0.1:${POSTGRES_PORT:-5432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    networks: [backend]
+
+  redis:
+    image: redis:8-alpine
+    restart: unless-stopped
+    # Pure cache: no persistence, bounded memory, evict least-recently-used keys.
+    command:
+      - redis-server
+      - --save
+      - ''
+      - --appendonly
+      - 'no'
+      - --maxmemory
+      - 128mb
+      - --maxmemory-policy
+      - allkeys-lru
+    ports:
+      - '127.0.0.1:${REDIS_PORT:-6379}:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks: [backend]
+
+  api:
+    profiles: [full]
+    build:
+      context: ./EcommerceAPI
+    image: ecommerce-api:local
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      # Least-privilege runtime role (DML only). Migrations run separately as ecommerce_migrator.
+      ConnectionStrings__Default: Host=db;Port=5432;Database=${POSTGRES_DB:-ecommerce};Username=ecommerce_app;Password=${APP_DB_PASSWORD:-change-me-app}
+      ConnectionStrings__Redis: redis:6379
+    ports:
+      - '127.0.0.1:${API_PORT:-5277}:8080'
+    networks: [backend]
+
+  ui:
+    profiles: [full]
+    build:
+      context: ./ecommerce-ui
+    image: ecommerce-ui:local
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      API_UPSTREAM: http://api:8080
+    ports:
+      - '127.0.0.1:${UI_PORT:-8081}:8080'
+    networks: [backend]
+
+volumes:
+  db-data:
+
+networks:
+  backend:

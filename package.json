@@ -1,0 +1,49 @@
+{
+  "name": "ecommerce-monorepo-tooling",
+  "private": true,
+  "description": "Repo-wide developer tooling and task runner (Nx, Prettier, Husky, lint-staged, commitlint). No app dependencies; ecommerce-ui/ has its own package.json.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.12.0 <25",
+    "npm": ">=11.7.0"
+  },
+  "packageManager": "npm@11.7.0",
+  "scripts": {
+    "prepare": "husky",
+    "setup": "node scripts/setup.mjs",
+    "dev": "nx run-many -t dev",
+    "dev:db": "docker compose up -d --wait db redis && node scripts/db.mjs migrate --if-configured",
+    "dev:api": "nx dev api",
+    "dev:ui": "nx dev ui",
+    "docker:up": "docker compose --profile full up -d --build --wait",
+    "docker:logs": "docker compose --profile full logs -f",
+    "down": "docker compose --profile full down",
+    "db:migrate": "node scripts/db.mjs migrate",
+    "db:migration:add": "node scripts/db.mjs add",
+    "db:migration:remove": "node scripts/db.mjs remove",
+    "db:migration:list": "node scripts/db.mjs list",
+    "db:reset": "docker compose --profile full down --volumes && npm run dev:db",
+    "build": "nx run-many -t build",
+    "format": "prettier --write . && node scripts/dotnet-format.mjs fix",
+    "format:check": "prettier --check . && node scripts/dotnet-format.mjs check",
+    "lint": "nx run-many -t lint",
+    "lint:ui": "nx lint ui",
+    "lint:api": "nx lint api",
+    "affected": "nx affected -t lint build",
+    "graph": "nx graph"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "21.2.3",
+    "@commitlint/config-conventional": "21.2.3",
+    "@nx/dotnet": "23.2.1",
+    "husky": "9.1.7",
+    "lint-staged": "17.6.0",
+    "nx": "23.2.1",
+    "prettier": "3.9.9"
+  },
+  "overrides": {
+    "axios": "1.20.0",
+    "brace-expansion": "5.0.12",
+    "smol-toml": "1.9.0"
+  }
+}

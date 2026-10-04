@@ -1,0 +1,14 @@
+node_modules/
+dist/
+dist-ssr/
+coverage/
+*.log
+*.local
+*.tsbuildinfo
+.vscode/
+.idea/
+.git
+.env
+.env.*
+Dockerfile
+.dockerignore

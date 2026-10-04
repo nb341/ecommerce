@@ -1,0 +1,22 @@
+#!/usr/bin/env sh
+# Pre-commit: secret scan, then format/lint staged files only. POSIX sh (Git Bash, macOS, Linux).
+
+# 1. Secret scanning (gitleaks). Never skipped silently: missing gitleaks fails the commit.
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "pre-commit: gitleaks is not installed, so staged changes cannot be scanned for secrets." >&2
+  echo "Install it, open a new terminal, then commit again:" >&2
+  echo "  Windows: winget install Gitleaks.Gitleaks" >&2
+  echo "  macOS:   brew install gitleaks" >&2
+  echo "  Linux:   https://github.com/gitleaks/gitleaks#installing" >&2
+  exit 1
+fi
+
+# `gitleaks git --pre-commit` exists from v8.19; older versions only have `protect`.
+if gitleaks git --help >/dev/null 2>&1; then
+  gitleaks git --pre-commit --staged --redact --no-banner
+else
+  gitleaks protect --staged --redact --no-banner
+fi
+
+# 2. Prettier / oxlint / dotnet format on staged files (see .lintstagedrc.mjs).
+npx --no-install lint-staged

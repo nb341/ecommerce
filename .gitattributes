@@ -1,0 +1,27 @@
+# Normalize line endings: LF in the repo and working tree (needed for Docker/shell scripts on Windows)
+* text=auto eol=lf
+*.cmd text eol=crlf
+*.bat text eol=crlf
+*.ps1 text eol=crlf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.pdf binary
+
+# Shell scripts and git hooks must stay LF (they run under sh / inside containers)
+*.sh text eol=lf
+.husky/** text eol=lf
+
+# Better diffs
+*.cs diff=csharp
+*.md diff=markdown
+
+# Lockfiles: collapsed in GitHub diffs, still visible in `git diff`
+package-lock.json linguist-generated

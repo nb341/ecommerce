@@ -1,0 +1,28 @@
+{
+  "$schema": "./node_modules/nx/schemas/nx-schema.json",
+  "neverConnectToCloud": true,
+  "plugins": ["@nx/dotnet"],
+  "namedInputs": {
+    "sharedGlobals": ["{workspaceRoot}/.editorconfig", "{workspaceRoot}/nx.json"],
+    "default": ["{projectRoot}/**/*", "sharedGlobals"]
+  },
+  "targetDefaults": {
+    "build": {
+      "cache": true
+    },
+    "lint": {
+      "cache": true
+    },
+    "typecheck": {
+      "cache": true
+    },
+    "test": {
+      "cache": true
+    },
+    "dev": {
+      "continuous": true,
+      "cache": false
+    }
+  },
+  "analytics": false
+}

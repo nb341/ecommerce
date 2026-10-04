@@ -1,0 +1,47 @@
+# --- OS / editors ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+*.suo
+*.user
+*.swp
+
+# --- Secrets / environment ---
+.env
+.env.*
+!.env.example
+*.pfx
+*.key
+secrets.json
+
+# --- Node / frontend ---
+node_modules/
+dist/
+coverage/
+*.log
+.eslintcache
+
+# --- .NET ---
+[Bb]in/
+[Oo]bj/
+TestResults/
+*.trx
+artifacts/
+efbundle
+efbundle.exe
+
+# --- Claude Code (personal settings) ---
+.claude/settings.local.json
+
+# --- Tooling ---
+*.tsbuildinfo
+.husky/_/
+
+# --- Nx (local task cache and project-graph data) ---
+.nx/cache/
+.nx/workspace-data/

@@ -1,0 +1,24 @@
+{
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "name": "api",
+  "projectType": "application",
+  "tags": ["scope:api"],
+  // build/restore/publish/watch/run/clean are inferred by @nx/dotnet; only additions live here.
+  "targets": {
+    "infra": {
+      "command": "npm run dev:db",
+      "options": { "cwd": "{workspaceRoot}" },
+      "cache": false
+    },
+    "dev": {
+      "command": "dotnet watch run --launch-profile http",
+      "options": { "cwd": "{projectRoot}" },
+      "dependsOn": ["infra"]
+    },
+    "lint": {
+      "command": "node scripts/dotnet-format.mjs check",
+      "options": { "cwd": "{workspaceRoot}" },
+      "inputs": ["default", "{workspaceRoot}/scripts/dotnet-format.mjs"]
+    }
+  }
+}

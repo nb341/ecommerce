@@ -1,0 +1,24 @@
+# Dependencies and build output
+node_modules/
+dist/
+dist-ssr/
+coverage/
+.nx/
+bin/
+obj/
+artifacts/
+TestResults/
+
+# Lockfiles (managed by npm)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Generated code
+EcommerceAPI/**/Migrations/**
+migrations/*.sql
+*.min.js
+*.min.css
+
+# Claude Code agent definitions and harness settings: prompts, not code
+.claude/
